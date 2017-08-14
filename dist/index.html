@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FakeVue Demo</title>
+    <script src="./fake-vue.js"></script>
+    
+</head>
+<body>
+    <div id="msg">
+        <input type="text" fv-model="text">
+        <p>{{text}}</p>
+    </div>
+<script>
+    var fvm = new FakeVue({
+        el:"#msg",
+        data:{
+            text: '这是text'
+        }
+    });
+</script>
+</body>
+</html>
