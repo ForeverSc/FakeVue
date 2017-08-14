@@ -10,6 +10,7 @@
     <div id="msg">
         <input type="text" fv-model="text">
         <p fv-show="show">{{text}}</p>
+        <button @click="hanlderClick">Show Paragraph</button>
     </div>
 <script>
     var fvm = new FakeVue({
@@ -17,6 +18,11 @@
         data:{
             text: '这是text',
             show: false
+        },
+        methods: {
+            hanlderClick() {
+                this._data.show = true
+            }
         }
     });
 </script>

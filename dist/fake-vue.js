@@ -97,6 +97,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function FakeVue(options) {
 	    this.$options = options;
+	    this.$methods = options.methods;
 	    this._data = options.data;
 	    this._el = document.querySelector(options.el);
 	    this._ob = (0, _index.observe)(options.data);
@@ -265,8 +266,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var reg = /\{\{(.*)\}\}/;
 
 	    if (reg.test(textContent)) {
-	        var exp = RegExp.$1;
-	        bindWatcher(node, this.$vm, exp, _updater2.default.text);
+	        var expOrFn = RegExp.$1;
+	        bindWatcher(node, this.$vm, expOrFn, _updater2.default.text);
 	    }
 	};
 
@@ -276,41 +277,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	    (0, _util.toRealArray)(attributes).forEach(function (attr) {
 	        var name = attr.name,
 	            value = attr.value,
-	            reg = /^fv\-(.*)$/;
+	            dirReg = /^fv\-(.*)$/,
+	            onReg = /^@(.*)$/;
 
-	        if (reg.test(name)) {
-	            var dir = RegExp.$1; //指令
-	            var exp = value;
+	        if (dirReg.test(name)) {
+	            //指令
+	            var dir = RegExp.$1;
+	            var expOrFn = value;
 
-	            Dirs[dir](node, _this2.$vm, exp);
+	            Dirs[dir](node, _this2.$vm, expOrFn);
+	        }
+
+	        if (onReg.test(name)) {
+	            //事件
+	            var eventName = RegExp.$1;
+	            var _expOrFn = value;
+
+	            bindEventHandler(node, eventName, _this2.$vm, _expOrFn);
 	        }
 	    });
 	};
 
 	//指令集合，如fv-model, fv-show
 	var Dirs = {
-	    model: function model(node, vm, exp) {
-	        bindWatcher(node, vm, exp, _updater2.default.model);
+	    model: function model(node, vm, expOrFn) {
+	        bindWatcher(node, vm, expOrFn, _updater2.default.model);
 
-	        var value = getValue(vm, exp);
+	        var value = getValue(vm, expOrFn);
 	        node.addEventListener('input', function (event) {
 	            var newValue = event.target.value;
 	            if (value === newValue) {
 	                return;
 	            }
-	            setValue(vm, exp, newValue);
+	            setValue(vm, expOrFn, newValue);
 	            value = newValue;
 	        });
 	    },
-	    show: function show(node, vm, exp) {
-	        bindWatcher(node, vm, exp, _updater2.default.show);
+	    show: function show(node, vm, expOrFn) {
+	        bindWatcher(node, vm, expOrFn, _updater2.default.show);
 	    }
 	};
 
 	//dom和watcher关联
-	function bindWatcher(node, vm, exp, updater) {
-	    updater(node, getValue(vm, exp));
-	    var watcher = new _watcher2.default(vm, exp, function (val, oldVal) {
+	function bindWatcher(node, vm, expOrFn, updater) {
+	    updater(node, getValue(vm, expOrFn));
+	    var watcher = new _watcher2.default(vm, expOrFn, function (val, oldVal) {
 	        if (val !== oldVal) {
 	            updater(node, val);
 	        }
@@ -318,12 +329,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    watcher.update();
 	}
 
-	function getValue(vm, exp) {
-	    return vm.$options.data[(0, _util.trim)(exp)];
+	//为node绑定事件
+	function bindEventHandler(node, eventName, vm, expOrFn) {
+	    var fn = vm.$methods[expOrFn];
+	    node.addEventListener(eventName, fn.bind(vm));
 	}
 
-	function setValue(vm, exp, value) {
-	    vm.$options.data[(0, _util.trim)(exp)] = value;
+	function getValue(vm, expOrFn) {
+	    return vm.$options.data[expOrFn];
+	}
+
+	function setValue(vm, expOrFn, value) {
+	    vm.$options.data[expOrFn] = value;
 	}
 
 /***/ }),

@@ -34,8 +34,8 @@ Compiler.prototype._compileTextContent = function(node, textContent) {
     let reg = /\{\{(.*)\}\}/
 
     if(reg.test(textContent)) {
-        let exp = RegExp.$1
-        bindWatcher(node, this.$vm, exp, Updater.text)
+        let expOrFn = RegExp.$1
+        bindWatcher(node, this.$vm, expOrFn, Updater.text)
     }
 }
 
@@ -43,41 +43,49 @@ Compiler.prototype._compileAttributes = function(node, attributes) {
     toRealArray(attributes).forEach(attr => {
         let name = attr.name,
             value = attr.value,
-            reg = /^fv\-(.*)$/
-        
-        if(reg.test(name)) {
-            let dir = RegExp.$1//指令
-            let exp = value
+            dirReg = /^fv\-(.*)$/,
+            onReg = /^@(.*)$/
             
-            Dirs[dir](node, this.$vm, exp)
+        if(dirReg.test(name)) {//指令
+            let dir = RegExp.$1
+            let expOrFn = value
+            
+            Dirs[dir](node, this.$vm, expOrFn)
+        }
+
+        if(onReg.test(name)) {//事件
+            let eventName = RegExp.$1
+            let expOrFn = value
+
+            bindEventHandler(node, eventName, this.$vm, expOrFn)
         }
     })
 }
 
 //指令集合，如fv-model, fv-show
 const Dirs = {
-    model(node, vm, exp) {
-        bindWatcher(node, vm, exp, Updater.model)
+    model(node, vm, expOrFn) {
+        bindWatcher(node, vm, expOrFn, Updater.model)
 
-        let value = getValue(vm, exp)
+        let value = getValue(vm, expOrFn)
         node.addEventListener('input', event => {
             let newValue = event.target.value;
             if (value === newValue) {
                 return;
             }
-            setValue(vm, exp, newValue);
+            setValue(vm, expOrFn, newValue);
             value = newValue;
         });
     },
-    show(node, vm, exp) {
-        bindWatcher(node, vm, exp, Updater.show)
+    show(node, vm, expOrFn) {
+        bindWatcher(node, vm, expOrFn, Updater.show)
     }
 }
 
 //dom和watcher关联
-function bindWatcher(node, vm, exp, updater) {
-    updater(node, getValue(vm, exp))
-    let watcher = new Watcher(vm, exp, function(val, oldVal){
+function bindWatcher(node, vm, expOrFn, updater) {
+    updater(node, getValue(vm, expOrFn))
+    let watcher = new Watcher(vm, expOrFn, function(val, oldVal){
         if(val !== oldVal) {
             updater(node, val)
         }
@@ -85,11 +93,17 @@ function bindWatcher(node, vm, exp, updater) {
     watcher.update()
 }
 
-function getValue(vm, exp) {
-    return vm.$options.data[trim(exp)]
+//为node绑定事件
+function bindEventHandler(node, eventName, vm, expOrFn) {
+    let fn =  vm.$methods[expOrFn]
+    node.addEventListener(eventName, fn.bind(vm))
 }
 
-function setValue(vm, exp, value) {
-    vm.$options.data[trim(exp)] = value
+function getValue(vm, expOrFn) {
+    return vm.$options.data[expOrFn]
+}
+
+function setValue(vm, expOrFn, value) {
+    vm.$options.data[expOrFn] = value
 }
 
