@@ -27,7 +27,6 @@ Compiler.prototype._initCompile = function(el) {
         if(attributes) {
             this._compileAttributes(node, attributes)
         }
-
     })
 }
 
@@ -55,7 +54,7 @@ Compiler.prototype._compileAttributes = function(node, attributes) {
     })
 }
 
-//指令集合，如fv-model, fv-if
+//指令集合，如fv-model, fv-show
 const Dirs = {
     model(node, vm, exp) {
         bindWatcher(node, vm, exp, Updater.model)
@@ -69,6 +68,9 @@ const Dirs = {
             setValue(vm, exp, newValue);
             value = newValue;
         });
+    },
+    show(node, vm, exp) {
+        bindWatcher(node, vm, exp, Updater.show)
     }
 }
 

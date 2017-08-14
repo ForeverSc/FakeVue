@@ -219,15 +219,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = Compiler;
 
-	var _watcher = __webpack_require__(15);
+	var _watcher = __webpack_require__(6);
 
 	var _watcher2 = _interopRequireDefault(_watcher);
 
-	var _updater = __webpack_require__(16);
+	var _updater = __webpack_require__(7);
 
 	var _updater2 = _interopRequireDefault(_updater);
 
-	var _util = __webpack_require__(9);
+	var _util = __webpack_require__(8);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -287,7 +287,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	};
 
-	//指令集合，如fv-model, fv-if
+	//指令集合，如fv-model, fv-show
 	var Dirs = {
 	    model: function model(node, vm, exp) {
 	        bindWatcher(node, vm, exp, _updater2.default.model);
@@ -301,6 +301,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            setValue(vm, exp, newValue);
 	            value = newValue;
 	        });
+	    },
+	    show: function show(node, vm, exp) {
+	        bindWatcher(node, vm, exp, _updater2.default.show);
 	    }
 	};
 
@@ -324,87 +327,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ }),
-/* 6 */,
-/* 7 */,
-/* 8 */,
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _dom = __webpack_require__(12);
-
-	Object.keys(_dom).forEach(function (key) {
-	  if (key === "default" || key === "__esModule") return;
-	  Object.defineProperty(exports, key, {
-	    enumerable: true,
-	    get: function get() {
-	      return _dom[key];
-	    }
-	  });
-	});
-
-	var _lang = __webpack_require__(10);
-
-	Object.keys(_lang).forEach(function (key) {
-	  if (key === "default" || key === "__esModule") return;
-	  Object.defineProperty(exports, key, {
-	    enumerable: true,
-	    get: function get() {
-	      return _lang[key];
-	    }
-	  });
-	});
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.trim = trim;
-	exports.toRealArray = toRealArray;
-	function trim(str) {
-	    return str.replace(/\s/g, '');
-	}
-
-	function toRealArray(nodes) {
-	    return [].slice.call(nodes);
-	}
-
-/***/ }),
-/* 11 */,
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.trimNodes = trimNodes;
-
-	var _lang = __webpack_require__(10);
-
-	function trimNodes(nodes) {
-	    nodes = (0, _lang.toRealArray)(nodes);
-
-	    return nodes.filter(function (node) {
-	        return node.nodeType === 1;
-	    });
-	}
-
-/***/ }),
-/* 13 */,
-/* 14 */,
-/* 15 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -458,10 +381,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 16 */
+/* 7 */
 /***/ (function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -472,8 +395,89 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    model: function model(node, value) {
 	        node.value = value;
+	    },
+	    show: function show(node, value) {
+	        if (!value) {
+	            node.style.visibility = 'hidden';
+	        } else {
+	            node.style.visibility = 'visible';
+	        }
 	    }
 	};
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _dom = __webpack_require__(9);
+
+	Object.keys(_dom).forEach(function (key) {
+	  if (key === "default" || key === "__esModule") return;
+	  Object.defineProperty(exports, key, {
+	    enumerable: true,
+	    get: function get() {
+	      return _dom[key];
+	    }
+	  });
+	});
+
+	var _lang = __webpack_require__(10);
+
+	Object.keys(_lang).forEach(function (key) {
+	  if (key === "default" || key === "__esModule") return;
+	  Object.defineProperty(exports, key, {
+	    enumerable: true,
+	    get: function get() {
+	      return _lang[key];
+	    }
+	  });
+	});
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.trimNodes = trimNodes;
+
+	var _lang = __webpack_require__(10);
+
+	function trimNodes(nodes) {
+	    nodes = (0, _lang.toRealArray)(nodes);
+
+	    return nodes.filter(function (node) {
+	        return node.nodeType === 1;
+	    });
+	}
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.trim = trim;
+	exports.toRealArray = toRealArray;
+	function trim(str) {
+	    return str.replace(/\s/g, '');
+	}
+
+	function toRealArray(nodes) {
+	    return [].slice.call(nodes);
+	}
 
 /***/ })
 /******/ ])

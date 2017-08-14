@@ -9,13 +9,14 @@
 <body>
     <div id="msg">
         <input type="text" fv-model="text">
-        <p>{{text}}</p>
+        <p fv-show="show">{{text}}</p>
     </div>
 <script>
     var fvm = new FakeVue({
         el:"#msg",
         data:{
-            text: '这是text'
+            text: '这是text',
+            show: false
         }
     });
 </script>
