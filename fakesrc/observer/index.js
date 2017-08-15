@@ -12,7 +12,7 @@ export function observe(data) {
     return new Observer(data)
 }
 
-//定义对象属性的get和set实现响应
+//为对象的属性定义get和set具体方法，实现属性响应
 Observer.prototype.defineReactive = function(data, key, val) {
     let dep = new Dep()
     Object.defineProperty(data, key, {
@@ -34,7 +34,7 @@ Observer.prototype.defineReactive = function(data, key, val) {
     })
 }
 
-//遍历观察data中的每个属性
+//遍历data中的每个属性,将其定义为响应式属性
 Observer.prototype.observeAll = function(data) {
     if(!data || typeof data !== 'object') {
         throw(new Error('vm is not a object'))

@@ -95,14 +95,46 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var uid = 0;
+
 	function FakeVue(options) {
+	    this._uid = uid++;
 	    this.$options = options;
 	    this.$methods = options.methods;
 	    this._data = options.data;
+	    this._proxy();
 	    this._el = document.querySelector(options.el);
 	    this._ob = (0, _index.observe)(options.data);
 	    new _index3.default(options.el, this);
 	}
+
+	//代理，把数据和函数代理到vm上
+	FakeVue.prototype._proxy = function () {
+	    var _this = this;
+
+	    Object.keys(this._data).forEach(function (key) {
+	        _this._dataProxy(key);
+	    });
+	    Object.keys(this.$methods).forEach(function (fnName) {
+	        _this[fnName] = _this.$methods[fnName];
+	    });
+	};
+
+	//将_data中的数据代理到vm上，方便this直接调用
+	//vm.prop === vm._data.prop
+	FakeVue.prototype._dataProxy = function (key) {
+	    var self = this;
+	    Object.defineProperty(self, key, {
+	        configurable: true,
+	        enumerable: true,
+	        get: function proxyGetter() {
+	            return self._data[key];
+	        },
+	        set: function proxySetter(val) {
+	            self._data[key] = val;
+	        }
+	    });
+	};
 
 /***/ }),
 /* 3 */
@@ -137,7 +169,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new Observer(data);
 	}
 
-	//定义对象属性的get和set实现响应
+	//为对象的属性定义get和set具体方法，实现属性响应
 	Observer.prototype.defineReactive = function (data, key, val) {
 	    var dep = new _dep2.default();
 	    Object.defineProperty(data, key, {
@@ -159,7 +191,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	};
 
-	//遍历观察data中的每个属性
+	//遍历data中的每个属性,将其定义为响应式属性
 	Observer.prototype.observeAll = function (data) {
 	    var _this = this;
 
@@ -326,7 +358,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            updater(node, val);
 	        }
 	    });
-	    watcher.update();
 	}
 
 	//为node绑定事件

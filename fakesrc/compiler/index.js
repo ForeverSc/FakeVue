@@ -90,7 +90,6 @@ function bindWatcher(node, vm, expOrFn, updater) {
             updater(node, val)
         }
     })
-    watcher.update()
 }
 
 //为node绑定事件
