@@ -85,10 +85,8 @@ const Dirs = {
 //dom和watcher关联
 function bindWatcher(node, vm, expOrFn, updater) {
     updater(node, getValue(vm, expOrFn))
-    let watcher = new Watcher(vm, expOrFn, function(val, oldVal){
-        if(val !== oldVal) {
-            updater(node, val)
-        }
+    new Watcher(vm, expOrFn, function(val){
+        updater(node, val)
     })
 }
 

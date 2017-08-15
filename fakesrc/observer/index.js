@@ -12,15 +12,17 @@ export function observe(data) {
     return new Observer(data)
 }
 
-//为对象的属性定义get和set具体方法，实现属性响应
+/**
+ * 为对象的属性定义get和set具体方法，实现属性响应
+ */
 Observer.prototype.defineReactive = function(data, key, val) {
-    let dep = new Dep()
+    let dep = new Dep()//新增一个观察者
     Object.defineProperty(data, key, {
         enumerable: true,
         configurable: true,
         get() {
-            if(Dep.target) {
-                dep.depend()//增加依赖
+            if(Dep.target) {//如果当前存在一个target watcher
+                dep.depend()//则将这个dep观察者加入到target watcher中
             }
             return val
         },
@@ -29,12 +31,14 @@ Observer.prototype.defineReactive = function(data, key, val) {
                 return
             }
             val = newVal
-            dep.notify()
+            dep.notify()//触发所有已订阅的更新
         }
     })
 }
 
-//遍历data中的每个属性,将其定义为响应式属性
+/**
+ * 遍历data中的每个属性,将其定义为响应式属性
+ */
 Observer.prototype.observeAll = function(data) {
     if(!data || typeof data !== 'object') {
         throw(new Error('vm is not a object'))

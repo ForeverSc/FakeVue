@@ -169,15 +169,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new Observer(data);
 	}
 
-	//为对象的属性定义get和set具体方法，实现属性响应
+	/**
+	 * 为对象的属性定义get和set具体方法，实现属性响应
+	 */
 	Observer.prototype.defineReactive = function (data, key, val) {
-	    var dep = new _dep2.default();
+	    var dep = new _dep2.default(); //新增一个观察者
 	    Object.defineProperty(data, key, {
 	        enumerable: true,
 	        configurable: true,
 	        get: function get() {
 	            if (_dep2.default.target) {
-	                dep.depend(); //增加依赖
+	                //如果当前存在一个target watcher
+	                dep.depend(); //则将这个dep观察者加入到target watcher中
 	            }
 	            return val;
 	        },
@@ -186,12 +189,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return;
 	            }
 	            val = newVal;
-	            dep.notify();
+	            dep.notify(); //触发所有已订阅的更新
 	        }
 	    });
 	};
 
-	//遍历data中的每个属性,将其定义为响应式属性
+	/**
+	 * 遍历data中的每个属性,将其定义为响应式属性
+	 */
 	Observer.prototype.observeAll = function (data) {
 	    var _this = this;
 
@@ -210,7 +215,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.default = Dep;
 	/**
@@ -218,27 +223,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	var uid = 0;
 
+	/**
+	 * 观察者
+	 */
 	function Dep() {
-	    this.id = uid++;
-	    this.subs = [];
+	  this.id = uid++;
+	  this.subs = [];
 	}
 
+	/**
+	 * 在运行时，每次只有一个target watcher
+	 */
 	Dep.target = null;
 
-	//增加一个订阅，放入watcher
+	/**
+	 * 增加一个订阅watcher
+	 */
 	Dep.prototype.addSub = function (sub) {
-	    this.subs.push(sub);
+	  this.subs.push(sub);
 	};
 
+	/**
+	 * 把dep本身当作一个依赖，加入到target watcher中
+	 */
 	Dep.prototype.depend = function () {
-	    Dep.target.addDep(this); //watcher监听
+	  Dep.target.addDep(this); //watcher监听
 	};
 
-	//遍历触发更新
+	/**
+	 * 遍历触发已订阅的更新
+	 */
 	Dep.prototype.notify = function () {
-	    this.subs.forEach(function (sub) {
-	        sub.update();
-	    });
+	  this.subs.forEach(function (sub) {
+	    sub.update(); //触发watcher的update方法，进行数据更新
+	  });
 	};
 
 /***/ }),
@@ -353,10 +371,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	//dom和watcher关联
 	function bindWatcher(node, vm, expOrFn, updater) {
 	    updater(node, getValue(vm, expOrFn));
-	    var watcher = new _watcher2.default(vm, expOrFn, function (val, oldVal) {
-	        if (val !== oldVal) {
-	            updater(node, val);
-	        }
+	    new _watcher2.default(vm, expOrFn, function (val) {
+	        updater(node, val);
 	    });
 	}
 
@@ -393,32 +409,38 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function Watcher(vm, exp, cb) {
 	    this.vm = vm;
-	    this.exp = exp;
-	    this.cb = cb;
-	    this.depIds = {};
+	    this.exp = exp; //compiler中解析到的表达式，如{{text}}中text
+	    this.cb = cb; //数据更新回调函数
+	    this.depIds = {}; //依赖对象id，防止重复
 	    this.value = this.get();
 	}
 
-	//获取数据
+	/**
+	 * 获取vm中对应exp的值
+	 */
 	Watcher.prototype.get = function () {
 	    _dep2.default.target = this;
-	    var value = this.vm.$options.data[this.exp];
+	    // observer中已经定义了对象属性的get，这里因为已经设置过了一次代理
+	    // 等同于访问this.vm.$options.data[this.exp]的值
+	    var value = this.vm[this.exp];
 	    _dep2.default.target = null;
 	    return value;
 	};
 
-	//更新数据
+	/**
+	 * 更新数据
+	 */
 	Watcher.prototype.update = function () {
 	    var val = this.get();
 	    var oldVal = this.value;
 	    if (val !== oldVal) {
 	        this.value = val;
-	        this.cb.call(this.vm, val, oldVal);
+	        this.cb.call(this.vm, val);
 	    }
 	};
 
 	/**
-	 * 增加依赖关系
+	 * 为dep观察者增加watcher订阅
 	 */
 	Watcher.prototype.addDep = function (dep) {
 	    if (!this.depIds.hasOwnProperty(dep.id)) {
