@@ -7,3 +7,11 @@ export function trimNodes(nodes) {
         return node.nodeType === 1
     })
 }
+
+export function isTextNode(node) {
+    return node.nodeType === 3
+}
+
+export function isElementNode(node) {
+    return node.nodeType === 1
+}

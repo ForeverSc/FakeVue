@@ -1,6 +1,6 @@
 import Watcher from '../observer/watcher'
 import Updater from './updater'
-import { trimNodes, trim, toRealArray } from '../util'
+import { trimNodes, trim, toRealArray, isTextNode, isElementNode} from '../util'
 
 export default function Compiler(el, vm, watcher) {
     this.$vm = vm
@@ -16,16 +16,21 @@ Compiler.prototype._initCompile = function(el) {
     let childNodes = el.childNodes || []
 
     //循环遍历子节点
-    trimNodes(childNodes).forEach(node => {
+    toRealArray(childNodes).forEach(node => {
         let textContent = node.textContent,
             attributes = node.attributes
 
-        if(trim(textContent)) {
-           this._compileTextContent(node, trim(textContent)) 
+        if(isTextNode(node)) {
+            if(trim(textContent)) {
+                this._compileTextContent(node, trim(textContent)) 
+            }
         }
 
-        if(attributes) {
-            this._compileAttributes(node, attributes)
+        if(isElementNode(node)) {
+            if(attributes) {
+                this._compileAttributes(node, attributes)
+            }
+            this._initCompile(node)
         }
     })
 }

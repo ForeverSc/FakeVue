@@ -298,16 +298,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var childNodes = el.childNodes || [];
 
 	    //循环遍历子节点
-	    (0, _util.trimNodes)(childNodes).forEach(function (node) {
+	    (0, _util.toRealArray)(childNodes).forEach(function (node) {
 	        var textContent = node.textContent,
 	            attributes = node.attributes;
 
-	        if ((0, _util.trim)(textContent)) {
-	            _this._compileTextContent(node, (0, _util.trim)(textContent));
+	        if ((0, _util.isTextNode)(node)) {
+	            if ((0, _util.trim)(textContent)) {
+	                _this._compileTextContent(node, (0, _util.trim)(textContent));
+	            }
 	        }
 
-	        if (attributes) {
-	            _this._compileAttributes(node, attributes);
+	        if ((0, _util.isElementNode)(node)) {
+	            if (attributes) {
+	                _this._compileAttributes(node, attributes);
+	            }
+	            _this._initCompile(node);
 	        }
 	    });
 	};
@@ -461,7 +466,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = {
 	    text: function text(node, value) {
-	        node.textContent = value;
+	        var reg = /\{\{(.*)\}\}/;
+	        node.textContent = node.textContent.replace(reg, value);
 	    },
 	    model: function model(node, value) {
 	        node.value = value;
@@ -519,6 +525,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	exports.trimNodes = trimNodes;
+	exports.isTextNode = isTextNode;
+	exports.isElementNode = isElementNode;
 
 	var _lang = __webpack_require__(10);
 
@@ -528,6 +536,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return nodes.filter(function (node) {
 	        return node.nodeType === 1;
 	    });
+	}
+
+	function isTextNode(node) {
+	    return node.nodeType === 3;
+	}
+
+	function isElementNode(node) {
+	    return node.nodeType === 1;
 	}
 
 /***/ }),

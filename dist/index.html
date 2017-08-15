@@ -10,20 +10,22 @@
         <input type="text" fv-model="text">
         <p>{{text}}</p>
         <p fv-show="show">{{text}}</p>
-        <button @click="hanlderClick">Show Paragraph</button>
+        <button @click="hanlderClick">{{btnText}}Paragraph</button>
     </div>
 <script>
     var fvm = new FakeVue({
         el:"#msg",
         data:{
             text: '这是text',
-            show: false
+            show: false,
+            btnText: 'Show'
         },
         methods: {
             hanlderClick() {
                 //this._data.show = true
                 this.show = !this.show
-                this.showAlert(2)
+                //this.btnText = this.show ? 'Hide' : 'Show'
+                this.showAlert(this.btnText)
             },
             showAlert(val = 1) {
                 alert(val)
