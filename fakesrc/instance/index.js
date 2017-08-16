@@ -9,8 +9,8 @@ export default function FakeVue (options) {
     this._data = options.data
     this._proxy()
     this._el = document.querySelector(options.el)
-    this._ob = observe(options.data)
-    new Compiler(options.el, this)
+    this._ob = observe(options.data)//监听对象的每个属性
+    new Compiler(options.el, this)//解析dom, 并触发事件
 }
 
 //代理，把数据和函数代理到vm上

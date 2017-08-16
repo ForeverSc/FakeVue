@@ -15,7 +15,7 @@ Watcher.prototype.get = function() {
     Dep.target = this
     // observer中已经定义了对象属性的get，这里因为已经设置过了一次代理
     // 等同于访问this.vm.$options.data[this.exp]的值
-    let value = this.vm[this.exp]
+    let value = this.vm[this.exp] //此处触发了observer中声明的get
     Dep.target = null
     return value
 }
@@ -33,10 +33,13 @@ Watcher.prototype.update = function() {
 }
 
 /**
- * 为dep观察者增加watcher订阅
+ * 为订阅中心dep增加新的watcher订阅者
  */
 Watcher.prototype.addDep = function(dep) {
-    if (!this.depIds.hasOwnProperty(dep.id)) {//不存在这个依赖时，新增依赖
+    //Observer中每定义一个属性，就会创建一个dep实例，属性和dep实例是一一对应的
+    //假如当前watcher的depIds中不存在该dep的id，则说明该属性是新属性，需要加入该watcher订阅者
+    //通过depIds保证了每个watcher只会添加进每个属性的subs订阅数组中一次，确保唯一性
+    if (!this.depIds.hasOwnProperty(dep.id)) {
         dep.addSub(this)
         this.depIds[dep.id] = dep
     }

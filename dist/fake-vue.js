@@ -104,8 +104,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._data = options.data;
 	    this._proxy();
 	    this._el = document.querySelector(options.el);
-	    this._ob = (0, _index.observe)(options.data);
-	    new _index3.default(options.el, this);
+	    this._ob = (0, _index.observe)(options.data); //监听对象的每个属性
+	    new _index3.default(options.el, this); //解析dom, 并触发事件
 	}
 
 	//代理，把数据和函数代理到vm上
@@ -173,14 +173,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * 为对象的属性定义get和set具体方法，实现属性响应
 	 */
 	Observer.prototype.defineReactive = function (data, key, val) {
-	    var dep = new _dep2.default(); //新增一个观察者
+	    var dep = new _dep2.default(); //新增一个订阅中心
 	    Object.defineProperty(data, key, {
 	        enumerable: true,
 	        configurable: true,
 	        get: function get() {
 	            if (_dep2.default.target) {
 	                //如果当前存在一个target watcher
-	                dep.depend(); //则将这个dep观察者加入到target watcher中
+	                dep.depend(); //则将这个dep实例加入到target watcher中
 	            }
 	            return val;
 	        },
@@ -218,13 +218,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	exports.default = Dep;
-	/**
-	 * 依赖关系
-	 */
 	var uid = 0;
 
 	/**
-	 * 观察者
+	 * 订阅中心
 	 */
 	function Dep() {
 	  this.id = uid++;
@@ -232,22 +229,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	/**
-	 * 在运行时，每次只有一个target watcher
+	 * 在运行时，每次只有一个目标订阅者watcher
 	 */
 	Dep.target = null;
 
 	/**
-	 * 增加一个订阅watcher
+	 * 增加一个订阅者watcher
 	 */
 	Dep.prototype.addSub = function (sub) {
 	  this.subs.push(sub);
 	};
 
 	/**
-	 * 把dep本身当作一个依赖，加入到target watcher中
+	 * 把订阅中心dep传入到target watcher中，比较depIds后再判定时候增加订阅
 	 */
 	Dep.prototype.depend = function () {
-	  Dep.target.addDep(this); //watcher监听
+	  Dep.target.addDep(this);
 	};
 
 	/**
@@ -375,8 +372,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	//dom和watcher关联
 	function bindWatcher(node, vm, expOrFn, updater) {
-	    updater(node, getValue(vm, expOrFn));
+	    updater(node, getValue(vm, expOrFn)); //触发首次数据替换
 	    new _watcher2.default(vm, expOrFn, function (val) {
+	        //为其设置相应的watcher
 	        updater(node, val);
 	    });
 	}
@@ -427,7 +425,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _dep2.default.target = this;
 	    // observer中已经定义了对象属性的get，这里因为已经设置过了一次代理
 	    // 等同于访问this.vm.$options.data[this.exp]的值
-	    var value = this.vm[this.exp];
+	    var value = this.vm[this.exp]; //此处触发了observer中声明的get
 	    _dep2.default.target = null;
 	    return value;
 	};
@@ -445,11 +443,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * 为dep观察者增加watcher订阅
+	 * 为订阅中心dep增加新的watcher订阅者
 	 */
 	Watcher.prototype.addDep = function (dep) {
+	    //Observer中每定义一个属性，就会创建一个dep实例，属性和dep实例是一一对应的
+	    //假如当前watcher的depIds中不存在该dep的id，则说明该属性是新属性，需要加入该watcher订阅者
+	    //通过depIds保证了每个watcher只会添加进每个属性的subs订阅数组中一次，确保唯一性
 	    if (!this.depIds.hasOwnProperty(dep.id)) {
-	        //不存在这个依赖时，新增依赖
 	        dep.addSub(this);
 	        this.depIds[dep.id] = dep;
 	    }

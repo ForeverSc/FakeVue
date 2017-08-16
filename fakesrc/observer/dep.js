@@ -1,10 +1,7 @@
-/**
- * 依赖关系
- */
 let uid = 0;
 
 /**
- * 观察者
+ * 订阅中心
  */
 export default function Dep() {
     this.id = uid++;
@@ -12,22 +9,22 @@ export default function Dep() {
 }
 
 /**
- * 在运行时，每次只有一个target watcher
+ * 在运行时，每次只有一个目标订阅者watcher
  */
 Dep.target = null
 
 /**
- * 增加一个订阅watcher
+ * 增加一个订阅者watcher
  */
 Dep.prototype.addSub = function(sub) {
     this.subs.push(sub)
 }
 
 /**
- * 把dep本身当作一个依赖，加入到target watcher中
+ * 把订阅中心dep传入到target watcher中，比较depIds后再判定时候增加订阅
  */
 Dep.prototype.depend = function() {
-    Dep.target.addDep(this)//watcher监听
+    Dep.target.addDep(this)
 }
 
 /**

@@ -16,13 +16,13 @@ export function observe(data) {
  * 为对象的属性定义get和set具体方法，实现属性响应
  */
 Observer.prototype.defineReactive = function(data, key, val) {
-    let dep = new Dep()//新增一个观察者
+    let dep = new Dep()//新增一个订阅中心
     Object.defineProperty(data, key, {
         enumerable: true,
         configurable: true,
         get() {
             if(Dep.target) {//如果当前存在一个target watcher
-                dep.depend()//则将这个dep观察者加入到target watcher中
+                dep.depend()//则将这个dep实例加入到target watcher中
             }
             return val
         },
