@@ -467,7 +467,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = {
 	    text: function text(node, value) {
 	        var reg = /\{\{(.*)\}\}/;
-	        node.textContent = node.textContent.replace(reg, value);
+	        if (reg.test(value)) {
+	            node.textContent = node.textContent.replace(reg, value);
+	        } else {
+	            node.textContent = value;
+	        }
 	    },
 	    model: function model(node, value) {
 	        node.value = value;

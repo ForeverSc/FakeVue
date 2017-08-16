@@ -1,7 +1,11 @@
 export default {
     text(node, value) {
         let reg = /\{\{(.*)\}\}/
-        node.textContent = node.textContent.replace(reg, value)
+        if(reg.test(value)) {
+            node.textContent = node.textContent.replace(reg, value)
+        } else {
+            node.textContent = value
+        }
     },
     model(node, value) {
         node.value = value
