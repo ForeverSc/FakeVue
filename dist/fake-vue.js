@@ -110,7 +110,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._el = document.querySelector(options.el);
 	    this._ob = (0, _index.observe)(options.data); //监听对象的每个属性
 	    this._proxy();
-	    new _index3.default(options.el, this); //解析dom, 并触发事件  
+	    new _index3.default(options.el, this); //解析dom, 订阅watcher并触发首次页面更新
 	}
 
 	//代理，把数据和函数代理到vm上

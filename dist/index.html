@@ -11,6 +11,7 @@
         <p>{{text}}</p>
         <p fv-show="show">{{text}}</p>
         <button @click="hanlderClick">{{btnText}}</button>
+        <p>{{ textComputed }}</p>
     </div>
 <script>
     var fvm = new FakeVue({
@@ -25,6 +26,11 @@
                 console.log('watch text change:', val)
             }
         },
+        computed: {
+            textComputed() {
+                return this.text + this.btnText
+            }
+        },
         methods: {
             hanlderClick() {
                 this.show = !this.show
@@ -33,6 +39,7 @@
             },
             showAlert(val = 1) {
                 alert(val)
+                console.log(this.textComputed)
             }
         }
     })
