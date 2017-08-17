@@ -10,7 +10,7 @@
         <input type="text" fv-model="text">
         <p>{{text}}</p>
         <p fv-show="show">{{text}}</p>
-        <button @click="hanlderClick">{{btnText}}Paragraph</button>
+        <button @click="hanlderClick">{{btnText}}</button>
     </div>
 <script>
     var fvm = new FakeVue({
@@ -20,18 +20,22 @@
             show: false,
             btnText: 'Show'
         },
+        watch: {
+            text: function(val) {
+                console.log('watch text change:', val)
+            }
+        },
         methods: {
             hanlderClick() {
-                //this._data.show = true
                 this.show = !this.show
-                //this.btnText = this.show ? 'Hide' : 'Show'
+                this.btnText = this.show ? 'Hide' : 'Show'
                 this.showAlert(this.btnText)
             },
             showAlert(val = 1) {
                 alert(val)
             }
         }
-    });
+    })
 </script>
 </body>
 </html>

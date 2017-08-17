@@ -93,6 +93,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _index3 = _interopRequireDefault(_index2);
 
+	var _watcher = __webpack_require__(6);
+
+	var _watcher2 = _interopRequireDefault(_watcher);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var uid = 0;
@@ -101,23 +105,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._uid = uid++;
 	    this.$options = options;
 	    this.$methods = options.methods;
+	    this._watch = options.watch;
 	    this._data = options.data;
-	    this._proxy();
 	    this._el = document.querySelector(options.el);
 	    this._ob = (0, _index.observe)(options.data); //监听对象的每个属性
-	    new _index3.default(options.el, this); //解析dom, 并触发事件
+	    this._proxy();
+	    new _index3.default(options.el, this); //解析dom, 并触发事件  
 	}
 
 	//代理，把数据和函数代理到vm上
 	FakeVue.prototype._proxy = function () {
 	    var _this = this;
 
-	    Object.keys(this._data).forEach(function (key) {
+	    this._data && Object.keys(this._data).forEach(function (key) {
 	        _this._dataProxy(key);
 	    });
-	    Object.keys(this.$methods).forEach(function (fnName) {
+	    this.$methods && Object.keys(this.$methods).forEach(function (fnName) {
 	        _this[fnName] = _this.$methods[fnName];
 	    });
+	    this._watch && Object.keys(this._watch).forEach(function (watchExp) {
+	        _this.$watch(watchExp, _this._watch[watchExp]);
+	    }); //必须在observe后调用
 	};
 
 	//将_data中的数据代理到vm上，方便this直接调用
@@ -134,6 +142,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            self._data[key] = val;
 	        }
 	    });
+	};
+
+	FakeVue.prototype.$watch = function (exp, cb) {
+	    new _watcher2.default(this, exp, cb);
 	};
 
 /***/ }),
